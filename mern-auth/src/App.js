@@ -13,29 +13,29 @@ import store from "./store";
 import { loadUser } from "./actions/auth";
 
 if (localStorage.token) {
-	setAuthToken(localStorage.token);
+  setAuthToken(localStorage.token);
 }
 
 function App() {
-	useEffect(() => {
-		store.dispatch(loadUser());
-	}, []);
-	return (
-		<>
-			<div className="App">
-				<Router>
-					<Navbar />
-					<Switch>
-						<Route exact path="/" component={Landing} />
-						<PrivateRoute exact path="/dashboard" component={Dashboard} />
-						<Route exact path="/register" component={Register} />
-						<Route exact path="/login" component={Login} />
-						<Route exact path="" component={NotFound} />
-					</Switch>
-				</Router>
-			</div>
-		</>
-	);
+  useEffect(() => {
+    store.dispatch(loadUser());
+  }, []);
+  return (
+    <>
+      <div className="App">
+        <Router>
+          <Navbar />
+          <Switch>
+            <Route exact path="/" component={Landing} />
+            <PrivateRoute exact path="/dashboard" component={Dashboard} />
+            <Route exact path="/register" component={Register} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="" component={NotFound} />
+          </Switch>
+        </Router>
+      </div>
+    </>
+  );
 }
 
 export default App;
