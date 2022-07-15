@@ -7,10 +7,9 @@
 		"start": "node mern-auth-backend/server",
 		"server": "nodemon mern-auth-backend/server",
 		"client": "npm start --prefix mern-auth",
-		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix mern-auth && npm run build --prefix mern-auth"
+		"dev": "concurrently \"npm run server\" \"npm run client\""
 	},
-	"author": "Shruti Panjwani",
+	"author": "Harshal",
 	"license": "ISC",
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
