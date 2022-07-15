@@ -9,6 +9,10 @@ const User = require("../models/User");
 
 var jwtSecret = "mysecrettoken";
 
+// @route   POST /users
+// @description    Register user
+// @access  Public
+
 router.post(
   "/",
   [
@@ -65,6 +69,10 @@ router.post(
   }
 );
 
+// @route   GET /users/auth
+// @description    Get user by token/ Loading user
+// @access  Private
+
 router.get("/auth", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -74,6 +82,10 @@ router.get("/auth", auth, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+// @route   POST /users/auth
+// @description    Authentication user & get token/ Login user
+// @access  Public
 
 router.post(
   "/auth",
