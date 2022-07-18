@@ -14,6 +14,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  verifiy: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = User = mongoose.model("user", UserSchema);
