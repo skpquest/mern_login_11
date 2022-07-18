@@ -22,8 +22,8 @@ var transporter = nodemailer.createTransport({
   // },
   service: "gmail",
   auth: {
-    user: "asdfqweerrccb@limitlesscircle.com",
-    pass: "qwerr@wee",
+    user: "swatikaithwas@questglt.org",
+    pass: "Swati@9140",
   },
 });
 
@@ -63,7 +63,7 @@ router.post(
         name,
         email,
         password,
-        verifiy: false,
+        verifiy: true,
       });
 
       //Encrypt Password
@@ -72,7 +72,20 @@ router.post(
       user.password = await bcrypt.hash(password, salt);
 
       await user.save();
-      // sendOTPVerificationEmail(res);
+      try {
+        (result) => {
+          sendOTPVerificationEmail(result, res);
+          console.log(sendOTPVerificationEmail(result, res));
+        };
+      } catch {
+        (err) => {
+          console.error(err.message);
+          res.json({
+            status: "FAILED",
+            message: "An error occurred while saving user account!",
+          });
+        };
+      }
 
       //Return jsonwebtoken
       const payload = {
@@ -167,26 +180,39 @@ router.post(
 const sendOTPVerificationEmail = async ({ _id, email }, res) => {
   try {
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+    console.log(otp);
     const mailOptions = {
-      from: "asdfqweerrccb@limitlesscircle.com",
-      to: "swatikaithwas8@gmail.com",
+      from: "swatikaithwas@questglt.org",
+      to: "harshalpagar456@gmail.com",
       subject: "Verify emaail",
-      html: `<b>$(otp)</b>`,
+      html: `<b>${otp}</b>`,
     };
     const saltRounds = 10;
-    const hasedOTP = await bcrypt.hash(otp, saltRound);
+    const hasedOTP = await bcrypt.hash(otp, saltRounds);
+    console.log(hasedOTP);
     const newUserOTPVerfication = await new UserOTPVerification({
-      userId: id,
-      otp: hashedOTP,
+      userId: _id,
+      otp: hasedOTP,
       createdAt: Date.now(),
       expiresAt: Date.now() + 3600000,
     });
-    await newOTPVerification.save();
+    console.log(newUserOTPVerfication);
+
+    await newUserOTPVerfication
+      .save()
+      .then((res) => {
+        console.log("success");
+      })
+      .catch((err) => {
+        console.log("err:", err);
+      });
+
     await transporter.sendMail(mailOptions);
+    console.log(mailOptions);
     res.json({
       status: "PENDING",
       message: "Verification otp email sent",
-      date: {
+      data: {
         userId: _id,
         email,
       },
@@ -207,7 +233,7 @@ router.post(
   async (req, res) => {
     try {
       let { userId, otp } = req.body;
-
+      console.log(req.body);
       if (!userId || !otp) {
         throw Error("Empty otp details are not allowed");
       } else {
@@ -220,7 +246,7 @@ router.post(
           const { expiresAt } = UserOTPVerificationRecords[0];
           const hashedOTP = UserOTPVerificationRecords[0].otp;
           if (expiresAt < Date.now()) {
-            await UserOTPVerfication.deleteMany({ userId });
+            await UserOTPVerification.deleteMany({ userId });
             throw new Error("Code has expired. Please request again.");
           } else {
             const validOTP = await bcrypt.compare(otp, hashedOTP);

@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
   },
   verifiy: {
     type: String,
-    required: false,
+    required:false,
   },
 });
 
