@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Landing from "./components/layout/Landing";
 import Login from "./components/auth/Login";
+import ResetPassword from "./components/auth/ResetPassword"
+import Forget from "./components/auth/Forget";
 import Register from "./components/auth/Register";
 import PrivateRoute from "./routing/PrivateRoute";
 import NotFound from "./components/NotFound";
@@ -30,6 +32,8 @@ function App() {
             <PrivateRoute exact path="/dashboard" component={Dashboard} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
+            <Route exact path="/forget" component={Forget} />
+            <Route exact path="/reset" component={ResetPassword} />
             <Route exact path="" component={NotFound} />
           </Switch>
         </Router>

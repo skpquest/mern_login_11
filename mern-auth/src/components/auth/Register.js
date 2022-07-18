@@ -1,12 +1,64 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
-import { register } from "../../actions/auth";
+import { register,res } from "../../actions/auth";
 import PropTypes from "prop-types";
 import Alert from "../layout/Alert";
 import { setAlert } from "../../actions/alert";
+// import axios from "axios";
+// import toast from "react-hot-toast";
+// import { useNavigate } from "react-router-dom";
+
 
 const Register = ({ setAlert, register, isAuthenticated }) => {
+	// const [otp, setOtp] = useState("");
+    // const [doVerification, setDoVerification] = useState(false);
+    // const navigate = useNavigate();
+
+	//signup otp
+	// const handleSignup = async () => {
+	// 		if(res.status === 200){
+    //             const res = await axios.post("send-otp api");
+    //             console.log(res);
+    //             toast.success("Otp Sent to Email.");
+    //         } else {
+    //             toast.error("Something went wrong. Try Again!");
+    //         }
+     
+    // };
+
+	// otp vrification
+	// const verifyOtp = async () => {
+    //     try {
+    //         if (otp === "" || email === "") {
+    //             toast.error("Fill Otp to verify!");
+    //             return;
+    //         }
+    //         const payload = {
+    //             email: email,
+    //             otp,
+    //             type: "Signup",
+    //         };
+
+    //         //API Call
+    //         const res = await axios.post(
+    //             "verify-otp api",
+    //             payload
+    //         );
+    //         if (res.status === 200) {
+    //             //verify otp
+    //             toast.success("Signup Successful.");
+    //             // setLogin(true);
+    //             navigate("/login")
+    //         } else {
+    //             toast.error("Something went wrong. Try Again!");
+    //         }
+    //         console.log(res);
+    //     } catch (err) {
+    //         toast.error("Invalid Otp!");
+    //     }
+    // };
+
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
@@ -36,6 +88,7 @@ const Register = ({ setAlert, register, isAuthenticated }) => {
 
 	return (
 		<div className="register-form">
+		<br/><br/>
 			<h1 className="heading">Sign Up</h1>
 			<p className="lead">
 				<i className="fas fa-user"></i> Create Your Account
