@@ -9,18 +9,13 @@ const UserOTPVerification = require("../models/UserOTPVerification.js");
 const nodemailer = require("nodemailer");
 var jwtSecret = "mysecrettoken";
 
-
-
 var transporter = nodemailer.createTransport({
- 
   service: "gmail",
   auth: {
     user: "swatikaithwas@questglt.org",
     pass: "Swati@9140",
   },
 });
-
-
 
 // @route   POST /users
 // @description    Register user
@@ -46,6 +41,7 @@ router.post(
 
     try {
       // See if user exists
+      // console.log(req.body);
       let user = await User.findOne({ email });
 
       if (user) {
@@ -62,7 +58,6 @@ router.post(
 
       user.password = await bcrypt.hash(password, salt);
       await user.save();
-
 
       //Return jsonwebtoken
       const payload = {
@@ -150,22 +145,25 @@ router.post(
   }
 );
 
-
-
 const sendOTPVerificationEmail = async (req, res) => {
   try {
-    
     console.log(req.body);
 
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
 
     console.log(otp);
-    const mailOptions = {
-      from: "swatikaithwas@questglt.org",
-      to: "swatikaithwas8@gmail.com",
-      subject: "Verify emaail",
-      html: `<p> This email for otp verfication<b>${otp}</b></p>`,
-    };
+    var isUser = await User.findOne({ _id: req.body.userId });
+    if (isUser) {
+      var email = isUser.email;
+      const mailOptions = {
+        from: "swatikaithwas@questglt.org",
+        to: email,
+        subject: "Verification code for email",
+        html: `<p> This email for otp verfication<b>${otp}</b></p>`,
+      };
+    } else {
+      res.send({ status: false, message: "user not found" });
+    }
 
     const newUserOTPVerfication = await new UserOTPVerification({
       userId: req.body.userId,
@@ -182,7 +180,7 @@ const sendOTPVerificationEmail = async (req, res) => {
         if (resp) {
           res.send({
             status: true,
-            message: "opt send successfull",
+            message: "opt send success fully",
             otp: otp,
           });
         }
