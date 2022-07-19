@@ -7,34 +7,24 @@ const { check, validationResult } = require("express-validator");
 const User = require("../models/User");
 const UserOTPVerification = require("../models/UserOTPVerification.js");
 const nodemailer = require("nodemailer");
-
 var jwtSecret = "mysecrettoken";
+
+
+
+var transporter = nodemailer.createTransport({
+ 
+  service: "gmail",
+  auth: {
+    user: "swatikaithwas@questglt.org",
+    pass: "Swati@9140",
+  },
+});
+
 
 
 // @route   POST /users
 // @description    Register user
 // @access  Public
-// smtp-mail.outlook.com
-var transporter = nodemailer.createTransport({
-  // // host: "mailtrap",
-
-  // auth: {
-  //   user: "harshalpagar@questglt.org",
-  //   pass: "harsh@quest",
-  // },
-  service: "gmail",
-  auth: {
-    user: "asdfqweerrccb@limitlesscircle.com",
-    pass: "qwerr@wee",
-  },
-});
-
-// var mailOptions = {
-//   from: "youremail@gmail.com",
-//   to: "myfriend@yahoo.com",
-//   subject: "Sending Email using Node.js",
-//   text: "That was easy!",
-// };
 
 router.post(
   "/",
@@ -52,7 +42,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, verifiy } = req.body;
+    const { name, email, password } = req.body;
 
     try {
       // See if user exists
@@ -65,16 +55,14 @@ router.post(
         name,
         email,
         password,
-        verifiy: false,
       });
 
       //Encrypt Password
       const salt = await bcrypt.genSalt(10);
 
       user.password = await bcrypt.hash(password, salt);
-
       await user.save();
-      // sendOTPVerificationEmail(res);
+
 
       //Return jsonwebtoken
       const payload = {
@@ -162,47 +150,73 @@ router.post(
   }
 );
 
-//  api for opt verifiy
-// router.post(
-//   "/otp",
 
-const sendOTPVerificationEmail = async ({ _id, email }, res) => {
+
+const sendOTPVerificationEmail = async (req, res) => {
   try {
+    
+    console.log(req.body);
+
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+    console.log(otp);
     const mailOptions = {
-      from: "asdfqweerrccb@limitlesscircle.com",
-      to: "swatikaithwas8@gmail.com",
+      from: "swatikaithwas@questglt.org",
+      to: "harshalpagar@questglt.org",
       subject: "Verify emaail",
-      html: `<b>$(otp)</b>`,
+      html: `<p> This email for otp verfication<b>${otp}</b></p>`,
     };
-    const saltRounds = 10;
-    const hasedOTP = await bcrypt.hash(otp, saltRound);
+
     const newUserOTPVerfication = await new UserOTPVerification({
-      userId: id,
-      otp: hashedOTP,
+      userId: req.body.userId,
+      otp: otp,
       createdAt: Date.now(),
       expiresAt: Date.now() + 3600000,
     });
-    await newOTPVerification.save();
+    console.log(newUserOTPVerfication);
+
+    await newUserOTPVerfication
+      .save()
+      .then((resp) => {
+        console.log("success");
+        if (resp) {
+          res.send({
+            status: true,
+            message: "opt send successfull",
+            otp: otp,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log("err:", err);
+      });
+
     await transporter.sendMail(mailOptions);
-    res.json({
+    console.log(mailOptions);
+    return {
       status: "PENDING",
       message: "Verification otp email sent",
-      date: {
+      data: {
         userId: _id,
         email,
       },
-    });
+    };
   } catch (err) {
-    res.json({
+    return {
       status: "failed",
       message: "error",
-    });
+    };
   }
 };
-// );
+// @route   POST /users/otp
+// @description    Authentication user & get token/ send otp
+// @access  Public
 router.post("/otp", sendOTPVerificationEmail);
-// otp verfication
+
+// @route   POST /users/otpverification
+// @description    Authentication user & get token/ check otpverification
+// @access  Public
+
 router.post(
   "/otpverification",
 
@@ -216,16 +230,21 @@ router.post(
         const UserOTPVerificationRecords = await UserOTPVerification.find({
           userId,
         });
-        if (UserOTPVerificationRecords.length <= 0) {
+
+        if (UserOTPVerificationRecords.length == 0) {
           throw new Error("Account record doesn't exist");
         } else {
+          // otp expire time
           const { expiresAt } = UserOTPVerificationRecords[0];
+
           const hashedOTP = UserOTPVerificationRecords[0].otp;
+
           if (expiresAt < Date.now()) {
-            await UserOTPVerfication.deleteMany({ userId });
-            throw new Error("Code has expired. Please request again.");
+            await UserOTPVerification.deleteMany({ userId });
+            throw new Error("Code has expired.Please request again.");
           } else {
-            const validOTP = await bcrypt.compare(otp, hashedOTP);
+            const validOTP = await otp;
+            //  if otp will be matched condition
             if (!validOTP) {
               throw new Error("Invalid code passed.Check your inbox.");
             } else {
@@ -239,24 +258,13 @@ router.post(
           }
         }
       }
-    } catch (err) {
+    } catch (error) {
       res.json({
         status: "failed",
-        message: "error",
+        message: error.message,
       });
     }
   }
 );
 
 module.exports = router;
-
-// .then((result) => {
-//   sendOTPVerificationEmail(result, res);
-//   console.log(sendOTPVerificationEmail(result, res));
-// }).catch((err) => {
-//   console.error(err.message);
-//   res.json({
-//     status: "FAILED",
-//     message: "An error occurred while saving user account!",
-//   });
-// });
