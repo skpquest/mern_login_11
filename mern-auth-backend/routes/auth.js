@@ -9,17 +9,10 @@ const UserOTPVerification = require("../models/UserOTPVerification.js");
 const nodemailer = require("nodemailer");
 var jwtSecret = "mysecrettoken";
 
-// @route   POST /users
-// @description    Register user
-// @access  Public
-// smtp-mail.outlook.com
-var transporter = nodemailer.createTransport({
-  // // host: "mailtrap",
 
-  // auth: {
-  //   user: "harshalpagar@questglt.org",
-  //   pass: "harsh@quest",
-  // },
+
+var transporter = nodemailer.createTransport({
+ 
   service: "gmail",
   auth: {
     user: "swatikaithwas@questglt.org",
@@ -27,12 +20,11 @@ var transporter = nodemailer.createTransport({
   },
 });
 
-// var mailOptions = {
-//   from: "youremail@gmail.com",
-//   to: "myfriend@yahoo.com",
-//   subject: "Sending Email using Node.js",
-//   text: "That was easy!",
-// };
+
+
+// @route   POST /users
+// @description    Register user
+// @access  Public
 
 router.post(
   "/",
@@ -71,26 +63,6 @@ router.post(
       user.password = await bcrypt.hash(password, salt);
       await user.save();
 
-      // await user.save().then((res) => {
-      //   try {
-      //     if (res) {
-      //       sendOTPVerificationEmail(res);
-      //     } else {
-      //       res.json({
-      //         status: "FAILED",
-      //         message: "An error occurred while saving user account!",
-      //       });
-      //     }
-      //   } catch {
-      //     (err) => {
-      //       console.error(err.message);
-      //       res.json({
-      //         status: "FAILED",
-      //         message: "An error occurred while saving user account!",
-      //       });
-      //     };
-      //   }
-      // });
 
       //Return jsonwebtoken
       const payload = {
@@ -178,13 +150,11 @@ router.post(
   }
 );
 
-//  api for opt verifiy
-// router.post(
-//   "/otp",
+
 
 const sendOTPVerificationEmail = async (req, res) => {
   try {
-    // console.log(res);
+    
     console.log(req.body);
 
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
@@ -194,11 +164,9 @@ const sendOTPVerificationEmail = async (req, res) => {
       from: "swatikaithwas@questglt.org",
       to: "swatikaithwas8@gmail.com",
       subject: "Verify emaail",
-      html: `<b>${otp}</b>`,
+      html: `<p> This email for otp verfication<b>${otp}</b></p>`,
     };
-    // const saltRounds = 10;
-    // const hasedOTP = await bcrypt.hash(otp, saltRounds);
-    // console.log(hasedOTP);
+
     const newUserOTPVerfication = await new UserOTPVerification({
       userId: req.body.userId,
       otp: otp,
@@ -240,40 +208,43 @@ const sendOTPVerificationEmail = async (req, res) => {
     };
   }
 };
-// );
+// @route   POST /users/otp
+// @description    Authentication user & get token/ send otp
+// @access  Public
 router.post("/otp", sendOTPVerificationEmail);
-// otp verfication
+
+// @route   POST /users/otpverification
+// @description    Authentication user & get token/ check otpverification
+// @access  Public
+
 router.post(
   "/otpverification",
 
   async (req, res) => {
     try {
       let { userId, otp } = req.body;
-      // console.log(req.body);
-      // console.log(userId);
 
       if (!userId || !otp) {
         throw Error("Empty otp details are not allowed");
       } else {
-        // console.log(userId);
         const UserOTPVerificationRecords = await UserOTPVerification.find({
           userId,
         });
-        // console.log("UserOTPVerificationRecords:", UserOTPVerificationRecords);
-        // console.log("UserOTPVerification:", UserOTPVerification);
+
         if (UserOTPVerificationRecords.length == 0) {
           throw new Error("Account record doesn't exist");
         } else {
+          // otp expire time
           const { expiresAt } = UserOTPVerificationRecords[0];
-          console.log(expiresAt);
+
           const hashedOTP = UserOTPVerificationRecords[0].otp;
-          // console.log(hashedOTP);
+
           if (expiresAt < Date.now()) {
             await UserOTPVerification.deleteMany({ userId });
             throw new Error("Code has expired.Please request again.");
           } else {
-            const validOTP = await (otp);
-            console.log("validOTP:", validOTP);
+            const validOTP = await otp;
+            //  if otp will be matched condition
             if (!validOTP) {
               throw new Error("Invalid code passed.Check your inbox.");
             } else {
