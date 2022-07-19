@@ -153,6 +153,7 @@ const sendOTPVerificationEmail = async (req, res) => {
 
     console.log(otp);
     var isUser = await User.findOne({ _id: req.body.userId });
+    console.log("isUser:", isUser);
     if (isUser) {
       var email = isUser.email;
       const mailOptions = {
@@ -220,13 +221,13 @@ router.post(
 
   async (req, res) => {
     try {
-      let { userId, otp } = req.body;
+      let { email, otp } = req.body;
 
-      if (!userId || !otp) {
+      if (!email || !otp) {
         throw Error("Empty otp details are not allowed");
       } else {
-        const UserOTPVerificationRecords = await UserOTPVerification.find({
-          userId,
+        const UserOTPVerificationRecords = await User.find({
+          email,
         });
 
         if (UserOTPVerificationRecords.length == 0) {
@@ -238,7 +239,7 @@ router.post(
           const hashedOTP = UserOTPVerificationRecords[0].otp;
 
           if (expiresAt < Date.now()) {
-            await UserOTPVerification.deleteMany({ userId });
+            await UserOTPVerification.deleteMany({ email });
             throw new Error("Code has expired.Please request again.");
           } else {
             const validOTP = await otp;
@@ -246,8 +247,8 @@ router.post(
             if (!validOTP) {
               throw new Error("Invalid code passed.Check your inbox.");
             } else {
-              await User.updateOne({ _id: userId }, { verified: true });
-              await UserOTPVerification.deleteMany({ userId });
+              await User.updateOne({ email: email }, { verified: true });
+              await UserOTPVerification.deleteMany({ email });
               res.json({
                 status: "VERIFIED",
                 message: "User email sussess full",
@@ -264,5 +265,10 @@ router.post(
     }
   }
 );
+// router.patch("/resetpassword", async(req,res)=>{
+//   try{
+//     const user = await
+//   }
+// })
 
 module.exports = router;
