@@ -21,27 +21,36 @@ function Register(props) {
 
   //Signup Logic
   const handleSignup = async () => {
-    const payload = {
-      name: userName,
-      email: userEmail,
-      phoneNumber,
-      password: userPassword,
-    };
-    //API Call signup
-    const res = await axios.post("http://localhost:5000/users/", payload);
-    // console.log("signup",res)
-  
-    if (res.status === 200) {
-      // setUserId(res.data.user.id)
-     
+
+    try {
+
+
       const payload = {
+        name: userName,
         email: userEmail,
-        type: "signup",
+        phoneNumber,
+        password: userPassword,
       };
-      //API Call otp
-      const response = await axios.post("http://localhost:5000/users/otp", payload);
-      console.log("otp",response);
-      setDoVerification(true);
+      //API Call signup
+      const res = await axios.post("http://localhost:5000/users/", payload);
+      // console.log("signup", res)
+
+      if(res.data.success){
+        // console.log("SUCCESS")
+        setUserId(res.data.data.user.id)
+        
+        const payload = {
+          email: userEmail,
+          userId:res.data.data.user.id,
+          type: "signup",
+        };
+        //API Call otp
+        const response = await axios.post("http://localhost:5000/users/otp", payload);
+        setDoVerification(true);
+        console.log("otp", response);
+      }
+    } catch (err) {
+
     }
   };
 
@@ -50,7 +59,7 @@ function Register(props) {
     const payload = {
       userId,
       otp,
-      
+
     };
     console.log(payload)
     //API Call
@@ -58,8 +67,9 @@ function Register(props) {
       "http://localhost:5000/users/otpverification",
       payload
     );
-    if (res.status === 200) {
-      <Link to="/login"></Link>;
+
+    if(res.data.status==="VERIFIED"){
+      window.location.replace("/login");
       // navigate("/login");
     }
 

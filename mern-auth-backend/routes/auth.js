@@ -50,6 +50,7 @@ router.post(
 
       if (user) {
         res.status(400).json({ errors: [{ msg: "User already exists" }] });
+        return;
       }
       user = new User({
         name,
@@ -73,12 +74,12 @@ router.post(
 
       jwt.sign(payload, jwtSecret, { expiresIn: 360000 }, (err, token) => {
         if (err) throw err;
-        res.json({ token ,user:payload.user});
+        res.status(200).json({success:true, data:{ token ,user:payload.user}});
 
       });
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Server error");
+      res.status(500).json({success:false,error:{message:"Server error"}});
     }
   }
 );
@@ -157,13 +158,17 @@ const sendOTPVerificationEmail = async (req, res) => {
   try {
     
     console.log(req.body);
+    const {userId,email} = req.body;
+    if(!userId || !email){
+      throw new Error("userId or email is missing in body!");
+    }
 
     const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
 
     console.log(otp);
     const mailOptions = {
       from: "swatikaithwas@questglt.org",
-      to: "harshalpagar@questglt.org",
+      to: email,
       subject: "Verify emaail",
       html: `<p> This email for otp verfication<b>${otp}</b></p>`,
     };
