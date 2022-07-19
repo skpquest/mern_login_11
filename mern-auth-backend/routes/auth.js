@@ -161,6 +161,7 @@ const sendOTPVerificationEmail = async (req, res) => {
         to: email,
         subject: "Verification code for email",
         html: `<p> This email for otp verfication<b>${otp}</b></p>`,
+        text:"emel",
       };
     } else {
       res.send({ status: false, message: "user not found" });
@@ -221,7 +222,7 @@ router.post(
 
   async (req, res) => {
     try {
-      let { userId, otp } = req.body;
+      let { userId,otp } = req.body;
 
       if (!userId || !otp) {
         throw Error("Empty otp details are not allowed");
@@ -235,9 +236,6 @@ router.post(
         } else {
           // otp expire time
           const { expiresAt } = UserOTPVerificationRecords[0];
-
-          const hashedOTP = UserOTPVerificationRecords[0].otp;
-
           if (expiresAt < Date.now()) {
             await UserOTPVerification.deleteMany({ userId });
             throw new Error("Code has expired.Please request again.");
@@ -267,8 +265,18 @@ router.post(
 );
 // router.patch("/resetpassword", async(req,res)=>{
 //   try{
-//     const user =await
+//     const user = await User.findByIdAndUpdate(req.params.id,req.body,{
+//       new:true,
+
+//     }).lean().exec();
+//     return res.status(201).send(user);
+
+//   }catch(error){
+//     return res.status(500).json({message:error.message,status:"Failed"})
 //   }
-// })
+// }
+// )
+
+
 
 module.exports = router;
