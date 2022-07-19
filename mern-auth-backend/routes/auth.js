@@ -249,17 +249,17 @@ router.post(
   async (req, res) => {
     try {
       let { userId, otp } = req.body;
-      console.log(req.body);
-      console.log(userId);
+      // console.log(req.body);
+      // console.log(userId);
 
       if (!userId || !otp) {
         throw Error("Empty otp details are not allowed");
       } else {
-        console.log(userId);
+        // console.log(userId);
         const UserOTPVerificationRecords = await UserOTPVerification.find({
           userId,
         });
-        console.log("UserOTPVerificationRecords:", UserOTPVerificationRecords);
+        // console.log("UserOTPVerificationRecords:", UserOTPVerificationRecords);
         // console.log("UserOTPVerification:", UserOTPVerification);
         if (UserOTPVerificationRecords.length == 0) {
           throw new Error("Account record doesn't exist");
@@ -267,12 +267,12 @@ router.post(
           const { expiresAt } = UserOTPVerificationRecords[0];
           console.log(expiresAt);
           const hashedOTP = UserOTPVerificationRecords[0].otp;
-          console.log(hashedOTP);
+          // console.log(hashedOTP);
           if (expiresAt < Date.now()) {
             await UserOTPVerification.deleteMany({ userId });
             throw new Error("Code has expired.Please request again.");
           } else {
-            const validOTP = await bcrypt.compare(otp, hashedOTP);
+            const validOTP = await (otp);
             console.log("validOTP:", validOTP);
             if (!validOTP) {
               throw new Error("Invalid code passed.Check your inbox.");
