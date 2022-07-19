@@ -73,7 +73,8 @@ router.post(
 
       jwt.sign(payload, jwtSecret, { expiresIn: 360000 }, (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        res.json({ token ,user:payload.user});
+
       });
     } catch (err) {
       console.error(err.message);
@@ -225,7 +226,7 @@ router.post(
       let { userId, otp } = req.body;
 
       if (!userId || !otp) {
-        throw Error("Empty otp details are not allowed");
+        throw new Error("Empty otp details are not allowed");
       } else {
         const UserOTPVerificationRecords = await UserOTPVerification.find({
           userId,

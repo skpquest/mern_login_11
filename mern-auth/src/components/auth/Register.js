@@ -10,6 +10,7 @@ function Register(props) {
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [doVerification, setDoVerification] = useState(false);
@@ -28,26 +29,30 @@ function Register(props) {
     };
     //API Call signup
     const res = await axios.post("http://localhost:5000/users/", payload);
+    // console.log("signup",res)
+  
     if (res.status === 200) {
-      setDoVerification(true);
+      // setUserId(res.data.user.id)
+     
       const payload = {
         email: userEmail,
         type: "signup",
       };
       //API Call otp
-      const res = await axios.post("http://localhost:5000/users/otp", payload);
-      console.log(res);
+      const response = await axios.post("http://localhost:5000/users/otp", payload);
+      console.log("otp",response);
+      setDoVerification(true);
     }
   };
 
   // Otp Verification Logic
   const verifyOtp = async () => {
     const payload = {
-      email: userEmail,
+      userId,
       otp,
-      type: "Signup",
+      
     };
-
+    console.log(payload)
     //API Call
     const res = await axios.post(
       "http://localhost:5000/users/otpverification",
