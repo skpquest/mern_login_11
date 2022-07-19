@@ -221,13 +221,13 @@ router.post(
 
   async (req, res) => {
     try {
-      let { email, otp } = req.body;
+      let { userId, otp } = req.body;
 
-      if (!email || !otp) {
+      if (!userId || !otp) {
         throw Error("Empty otp details are not allowed");
       } else {
-        const UserOTPVerificationRecords = await User.find({
-          email,
+        const UserOTPVerificationRecords = await UserOTPVerification.find({
+          userId,
         });
 
         if (UserOTPVerificationRecords.length == 0) {
@@ -239,7 +239,7 @@ router.post(
           const hashedOTP = UserOTPVerificationRecords[0].otp;
 
           if (expiresAt < Date.now()) {
-            await UserOTPVerification.deleteMany({ email });
+            await UserOTPVerification.deleteMany({ userId });
             throw new Error("Code has expired.Please request again.");
           } else {
             const validOTP = await otp;
@@ -247,8 +247,8 @@ router.post(
             if (!validOTP) {
               throw new Error("Invalid code passed.Check your inbox.");
             } else {
-              await User.updateOne({ email: email }, { verified: true });
-              await UserOTPVerification.deleteMany({ email });
+              await User.updateOne({ _id: userId }, { verified: true });
+              await UserOTPVerification.deleteMany({ userId });
               res.json({
                 status: "VERIFIED",
                 message: "User email sussess full",
@@ -267,7 +267,7 @@ router.post(
 );
 // router.patch("/resetpassword", async(req,res)=>{
 //   try{
-//     const user = await
+//     const user =await
 //   }
 // })
 
